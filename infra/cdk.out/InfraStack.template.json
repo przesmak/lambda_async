@@ -63,15 +63,449 @@
         "aws:asset:property": "Code"
       }
     },
+    "lambdaapi40841C60": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "lambda-async-dev_api"
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Resource"
+      }
+    },
+    "lambdaapiCloudWatchRole0459F11F": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/CloudWatchRole/Resource"
+      }
+    },
+    "lambdaapiAccount4AC64745": {
+      "Type": "AWS::ApiGateway::Account",
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "lambdaapiCloudWatchRole0459F11F",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "lambdaapi40841C60"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Account"
+      }
+    },
+    "lambdaapiDeployment77E502E607c98a0e277d73f63a078b2722cede8a": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "lambdaapi40841C60"
+        },
+        "Description": "Automatically created by the RestApi construct"
+      },
+      "DependsOn": [
+        "lambdaapiGET9D9FCC74",
+        "lambdaapiOPTIONSEAF9D8D1",
+        "lambdaapiPOST285EA2A6"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Deployment/Resource"
+      }
+    },
+    "lambdaapiDeploymentStageprod611C80ED": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "lambdaapi40841C60"
+        },
+        "DeploymentId": {
+          "Ref": "lambdaapiDeployment77E502E607c98a0e277d73f63a078b2722cede8a"
+        },
+        "StageName": "prod"
+      },
+      "DependsOn": [
+        "lambdaapiAccount4AC64745"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/DeploymentStage.prod/Resource"
+      }
+    },
+    "lambdaapiOPTIONSEAF9D8D1": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "OPTIONS",
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "lambdaapi40841C60",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "lambdaapi40841C60"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'*'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+              },
+              "StatusCode": "204"
+            }
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }"
+          },
+          "Type": "MOCK"
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "StatusCode": "204"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/OPTIONS/Resource"
+      }
+    },
+    "lambdaapiPOSTApiPermissionInfraStacklambdaapiD64DE791POST442DCA8F": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaAsyncFunction053941E6",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "lambdaapi40841C60"
+              },
+              "/",
+              {
+                "Ref": "lambdaapiDeploymentStageprod611C80ED"
+              },
+              "/POST/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/POST/ApiPermission.InfraStacklambdaapiD64DE791.POST.."
+      }
+    },
+    "lambdaapiPOSTApiPermissionTestInfraStacklambdaapiD64DE791POSTD2F5BB1E": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaAsyncFunction053941E6",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "lambdaapi40841C60"
+              },
+              "/test-invoke-stage/POST/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/POST/ApiPermission.Test.InfraStacklambdaapiD64DE791.POST.."
+      }
+    },
+    "lambdaapiPOST285EA2A6": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "lambdaapi40841C60",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "lambdaapi40841C60"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ \"statusCode\": \"200\"}"
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "LambdaAsyncFunction053941E6",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/POST/Resource"
+      }
+    },
+    "lambdaapiGETApiPermissionInfraStacklambdaapiD64DE791GET52709212": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaAsyncFunction053941E6",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "lambdaapi40841C60"
+              },
+              "/",
+              {
+                "Ref": "lambdaapiDeploymentStageprod611C80ED"
+              },
+              "/GET/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/GET/ApiPermission.InfraStacklambdaapiD64DE791.GET.."
+      }
+    },
+    "lambdaapiGETApiPermissionTestInfraStacklambdaapiD64DE791GET7FCCEA2E": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaAsyncFunction053941E6",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "lambdaapi40841C60"
+              },
+              "/test-invoke-stage/GET/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/GET/ApiPermission.Test.InfraStacklambdaapiD64DE791.GET.."
+      }
+    },
+    "lambdaapiGET9D9FCC74": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "lambdaapi40841C60",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "lambdaapi40841C60"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "RequestTemplates": {
+            "application/json": "{ \"statusCode\": \"200\"}"
+          },
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "LambdaAsyncFunction053941E6",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "InfraStack/lambda_api/Default/GET/Resource"
+      }
+    },
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/zWMwQqDMAxAv8V7zaYy2HUKO4v7AIm1c5magmkZo/jvq8pOL3khL4fsAucEP5Lqfkwn6iA8HOpRRdWGCeeuRwh3z9qRZVU9+T+vinCG0NjJbHrjqqRoUcQ4gduGuEPp9WhciRLPu4z9gXjYn4xYv+g9UFnu6QjXX/eyfCrgClmevIUoXTw7mg00B3+Wv+/puAAAAA=="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/01P0WrDMAz8lr472toy2Gvasbex0n1AcR0tUxPbIZIpIeTfJzuD9enudD7pvIPtCzxv7J0r13RVT1eYv8S6zujoMvfWXxsL83sKTigGc/wOj/yEoydmVYsh62E+xx6zkXExvL9YZhSGOoNqOCTXoRwso7EDtVbwbifNIUs9UIn+09q5mIKYNxz6OHlUqtMHpVXbcm8lGo1pdFjWf6D8xCabK1sWU1rkpxTabHwmGZL8HS3JzI8xNCTlT6dJk+FpD6+w3W1uTFSNWog8wnnFX6M9FpFBAQAA"
       },
       "Metadata": {
         "aws:cdk:path": "InfraStack/CDKMetadata/Default"
       },
       "Condition": "CDKMetadataAvailable"
+    }
+  },
+  "Outputs": {
+    "lambdaapiEndpoint08EEC087": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "lambdaapi40841C60"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/",
+            {
+              "Ref": "lambdaapiDeploymentStageprod611C80ED"
+            },
+            "/"
+          ]
+        ]
+      }
     }
   },
   "Conditions": {

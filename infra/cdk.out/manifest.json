@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a33af28b2d434868af151745dbd2fd8b0dfafc8bfdcfd9cf301696526dc8c935.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e8b57c78d16cc83d751d540fbbce0adb5e900fe175891ce4ce35e201c8133604.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -50,6 +50,84 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaAsyncFunction053941E6"
+          }
+        ],
+        "/InfraStack/lambda_api/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapi40841C60"
+          }
+        ],
+        "/InfraStack/lambda_api/CloudWatchRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiCloudWatchRole0459F11F"
+          }
+        ],
+        "/InfraStack/lambda_api/Account": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiAccount4AC64745"
+          }
+        ],
+        "/InfraStack/lambda_api/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiDeployment77E502E607c98a0e277d73f63a078b2722cede8a"
+          }
+        ],
+        "/InfraStack/lambda_api/DeploymentStage.prod/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiDeploymentStageprod611C80ED"
+          }
+        ],
+        "/InfraStack/lambda_api/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiEndpoint08EEC087"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiOPTIONSEAF9D8D1"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/POST/ApiPermission.InfraStacklambdaapiD64DE791.POST..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiPOSTApiPermissionInfraStacklambdaapiD64DE791POST442DCA8F"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/POST/ApiPermission.Test.InfraStacklambdaapiD64DE791.POST..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiPOSTApiPermissionTestInfraStacklambdaapiD64DE791POSTD2F5BB1E"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiPOST285EA2A6"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/GET/ApiPermission.InfraStacklambdaapiD64DE791.GET..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiGETApiPermissionInfraStacklambdaapiD64DE791GET52709212"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/GET/ApiPermission.Test.InfraStacklambdaapiD64DE791.GET..": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiGETApiPermissionTestInfraStacklambdaapiD64DE791GET7FCCEA2E"
+          }
+        ],
+        "/InfraStack/lambda_api/Default/GET/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "lambdaapiGET9D9FCC74"
           }
         ],
         "/InfraStack/CDKMetadata/Default": [
