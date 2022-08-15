@@ -1,8 +1,10 @@
 from aws_cdk import (
-    # Duration,
+    Duration,
     Stack,
     aws_lambda as _lambda,
+    aws_lambda_destinations as destinations,
     aws_apigateway as apigw,
+    aws_s3 as s3,
 )
 from constructs import Construct
 
@@ -12,12 +14,38 @@ class InfraStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        s3_data = s3.Bucket(self, "DocumentBucket", bucket_name="lambda-async-dev-documents")
+
+        function_on_success = _lambda.Function(self, "SuccessHandler",
+                            function_name="lambda-async-dev-onsuccess",
+                            runtime=_lambda.Runtime.PYTHON_3_8,
+                            code=_lambda.Code.from_asset("on_success"),
+                            handler="main.handler",
+                            environment={"S3_BUCKET_NAME": s3_data.bucket_name})
+
+        s3_data.grant_read_write(function_on_success)
+
         function_handler = _lambda.Function(self, "LambdaAsyncFunction",
                             function_name="lambda-async-dev",
                             runtime=_lambda.Runtime.PYTHON_3_8,
                             code=_lambda.Code.from_asset("asset"),
-                            handler="async_handler.handler")
-        
+                            handler="async_handler.handler", 
+                            timeout=Duration.minutes(15))
+
+        _lambda.EventInvokeConfig(self, "EventInvokeLambda", function=function_handler,
+                                on_success=destinations.LambdaDestination(function_on_success, response_only=True),
+                                on_failure=destinations.LambdaDestination(function_on_success, response_only=True))
+
+        function_on_success.grant_invoke(function_handler)
+
+        # Add API GW front end for the Lambda
+        api_stage_options = apigw.StageOptions(
+            stage_name="api_stage_async",
+            throttling_rate_limit=10,
+            throttling_burst_limit=100,
+            logging_level=apigw.MethodLoggingLevel.INFO
+        )
+
         api = apigw.RestApi(
             self,
             "lambda_api",
@@ -27,12 +55,59 @@ class InfraStack(Stack):
                 allow_methods=apigw.Cors.ALL_METHODS,
                 allow_headers=["*"],
             ),
+            deploy_options=api_stage_options
         )
+
+        resp_template = """{
+        "api_stage": "$context.stage",
+        "api_request_id": "$context.requestId",
+        "api_resource_path": "$context.resourcePath",
+        "http_method": "$context.httpMethod",
+        "source_ip": "$context.identity.sourceIp",
+        "user-agent": "$context.identity.userAgent",
+        #foreach($param in $input.params().header.keySet())
+        #if($param == "invocationtype" or $param == "InvocationType" && $util.escapeJavaScript($input.params().header.get($param)) == "Event")
+        #set($is_async = "true")
+        #end
+        #end
+        #if($is_async == "true")
+        "asynchronous_invocation":"true",
+        "message":"Event received. Check queue/logs for status"
+        #else
+        "synchronous_invocation":"true",
+        #end
+        }
+        """
 
         get_lambda_integration = apigw.LambdaIntegration(
             function_handler,
+            proxy=False,
+            passthrough_behavior=apigw.PassthroughBehavior.WHEN_NO_TEMPLATES,
             request_templates={"application/json": '{ "statusCode": "200"}'},
+            request_parameters={"integration.request.header.X-Amz-Invocation-Type": "method.request.path.InvocationType"},
+            integration_responses=[apigw.IntegrationResponse(status_code="200",
+                    # selection_pattern="2\d{2}",  # Use for mapping Lambda Errors
+                    response_parameters={
+
+                    }, response_templates={
+                        "application/json": f"{resp_template}"})
+            ]
         )
 
-        api.root.add_method("POST", get_lambda_integration)
-        api.root.add_method("GET", get_lambda_integration)
+        api.root.add_method(http_method="POST",
+                        integration=get_lambda_integration,
+                        request_parameters={
+                            "method.request.header.InvocationType": True
+                        }, method_responses=[
+                            apigw.MethodResponse(status_code="200",
+                            response_parameters={
+                                "method.response.header.Content-Length": True,
+                            }, response_models={
+                                "application/json": apigw.Model.EMPTY_MODEL
+                            })
+                        ])
+        api.root.add_method(http_method="GET", 
+                        integration=get_lambda_integration,
+                        request_parameters={
+                            "method.request.header.InvocationType": True
+                        })

@@ -23,7 +23,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e8b57c78d16cc83d751d540fbbce0adb5e900fe175891ce4ce35e201c8133604.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d0cb82d3fb47e2bf10c176db97ba522265e9edbdb15b997f0fc92680a3ff357a.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -40,16 +40,76 @@
         "InfraStack.assets"
       ],
       "metadata": {
+        "/InfraStack/DocumentBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DocumentBucketAE41E5A9"
+          }
+        ],
+        "/InfraStack/SuccessHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SuccessHandlerServiceRoleEBF509F1"
+          }
+        ],
+        "/InfraStack/SuccessHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SuccessHandlerServiceRoleDefaultPolicy668974D4"
+          }
+        ],
+        "/InfraStack/SuccessHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SuccessHandlerC6894287"
+          }
+        ],
         "/InfraStack/LambdaAsyncFunction/ServiceRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaAsyncFunctionServiceRole483E3DFA"
           }
         ],
+        "/InfraStack/LambdaAsyncFunction/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaAsyncFunctionServiceRoleDefaultPolicy94F5C363"
+          }
+        ],
         "/InfraStack/LambdaAsyncFunction/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "LambdaAsyncFunction053941E6"
+          }
+        ],
+        "/InfraStack/EventInvokeLambda/Failure/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventInvokeLambdaFailure184DB469"
+          }
+        ],
+        "/InfraStack/EventInvokeLambda/Failure/AllowEventRuleInfraStackSuccessHandler98726F76": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventInvokeLambdaFailureAllowEventRuleInfraStackSuccessHandler98726F76FF45F115"
+          }
+        ],
+        "/InfraStack/EventInvokeLambda/Success/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventInvokeLambdaSuccessDFFBC020"
+          }
+        ],
+        "/InfraStack/EventInvokeLambda/Success/AllowEventRuleInfraStackSuccessHandler98726F76": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventInvokeLambdaSuccessAllowEventRuleInfraStackSuccessHandler98726F76CA0B07AB"
+          }
+        ],
+        "/InfraStack/EventInvokeLambda/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventInvokeLambdaF6BABD8C"
           }
         ],
         "/InfraStack/lambda_api/Resource": [
@@ -73,13 +133,13 @@
         "/InfraStack/lambda_api/Deployment/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "lambdaapiDeployment77E502E607c98a0e277d73f63a078b2722cede8a"
+            "data": "lambdaapiDeployment77E502E604880aefa518e6d1c2819ef5cab3b153"
           }
         ],
-        "/InfraStack/lambda_api/DeploymentStage.prod/Resource": [
+        "/InfraStack/lambda_api/DeploymentStage.api_stage_async/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "lambdaapiDeploymentStageprod611C80ED"
+            "data": "lambdaapiDeploymentStageapistageasync8DACFEB6"
           }
         ],
         "/InfraStack/lambda_api/Endpoint": [
