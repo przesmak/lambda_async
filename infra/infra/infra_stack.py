@@ -14,7 +14,17 @@ class InfraStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        # Main document storage
         s3_data = s3.Bucket(self, "DocumentBucket", bucket_name="lambda-async-dev-documents")
+
+        # Lambdas definition
+        main_handler = _lambda.Function(self, "LambdaAsyncFunction",
+                            function_name="lambda-async-dev",
+                            runtime=_lambda.Runtime.PYTHON_3_8,
+                            code=_lambda.Code.from_asset("asset"),
+                            handler="async_handler.handler",
+                            timeout=Duration.minutes(15),
+                            environment={"S3_BUCKET_NAME": s3_data.bucket_name})
 
         function_on_success = _lambda.Function(self, "SuccessHandler",
                             function_name="lambda-async-dev-onsuccess",
@@ -23,20 +33,25 @@ class InfraStack(Stack):
                             handler="main.handler",
                             environment={"S3_BUCKET_NAME": s3_data.bucket_name})
 
-        s3_data.grant_read_write(function_on_success)
-
-        function_handler = _lambda.Function(self, "LambdaAsyncFunction",
-                            function_name="lambda-async-dev",
+        polling_handler = _lambda.Function(self, "PollingHandler",
+                            function_name="lambda-async-dev-polling",
                             runtime=_lambda.Runtime.PYTHON_3_8,
-                            code=_lambda.Code.from_asset("asset"),
-                            handler="async_handler.handler", 
-                            timeout=Duration.minutes(15))
+                            code=_lambda.Code.from_asset("lambda_polling"),
+                            handler="main.handler",
+                            environment={"S3_BUCKET_NAME": s3_data.bucket_name})
 
-        _lambda.EventInvokeConfig(self, "EventInvokeLambda", function=function_handler,
+        # policy for S3 bucket
+        s3_data.grant_write(function_on_success)
+        s3_data.grant_read(polling_handler)
+        s3_data.grant_write(main_handler)
+
+        # Invoke policy on success
+        function_on_success.grant_invoke(main_handler)
+
+        # Main lambda invocation strategy
+        _lambda.EventInvokeConfig(self, "EventInvokeLambda", function=main_handler,
                                 on_success=destinations.LambdaDestination(function_on_success, response_only=True),
                                 on_failure=destinations.LambdaDestination(function_on_success, response_only=True))
-
-        function_on_success.grant_invoke(function_handler)
 
         # Add API GW front end for the Lambda
         api_stage_options = apigw.StageOptions(
@@ -79,8 +94,8 @@ class InfraStack(Stack):
         }
         """
 
-        get_lambda_integration = apigw.LambdaIntegration(
-            function_handler,
+        post_lambda_integration = apigw.LambdaIntegration(
+            main_handler,
             proxy=False,
             passthrough_behavior=apigw.PassthroughBehavior.WHEN_NO_TEMPLATES,
             request_templates={"application/json": '{ "statusCode": "200"}'},
@@ -94,8 +109,13 @@ class InfraStack(Stack):
             ]
         )
 
+        get_lambda_integration = apigw.LambdaIntegration(
+            polling_handler,
+            request_templates={"application/json": '{ "statusCode": "200"}'},
+        )
+
         api.root.add_method(http_method="POST",
-                        integration=get_lambda_integration,
+                        integration=post_lambda_integration,
                         request_parameters={
                             "method.request.header.InvocationType": True
                         }, method_responses=[
@@ -106,8 +126,5 @@ class InfraStack(Stack):
                                 "application/json": apigw.Model.EMPTY_MODEL
                             })
                         ])
-        api.root.add_method(http_method="GET", 
-                        integration=get_lambda_integration,
-                        request_parameters={
-                            "method.request.header.InvocationType": True
-                        })
+
+        api.root.add_method(http_method="GET", integration=get_lambda_integration)

@@ -40,6 +40,229 @@
               "version": "2.15.0"
             }
           },
+          "LambdaAsyncFunction": {
+            "id": "LambdaAsyncFunction",
+            "path": "InfraStack/LambdaAsyncFunction",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "InfraStack/LambdaAsyncFunction/ServiceRole",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "InfraStack/LambdaAsyncFunction/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.15.0"
+                    }
+                  },
+                  "DefaultPolicy": {
+                    "id": "DefaultPolicy",
+                    "path": "InfraStack/LambdaAsyncFunction/ServiceRole/DefaultPolicy",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "InfraStack/LambdaAsyncFunction/ServiceRole/DefaultPolicy/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
+                          "aws:cdk:cloudformation:props": {
+                            "policyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": [
+                                    "s3:DeleteObject*",
+                                    "s3:PutObject",
+                                    "s3:PutObjectLegalHold",
+                                    "s3:PutObjectRetention",
+                                    "s3:PutObjectTagging",
+                                    "s3:PutObjectVersionTagging",
+                                    "s3:Abort*"
+                                  ],
+                                  "Effect": "Allow",
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": [
+                                        "DocumentBucketAE41E5A9",
+                                        "Arn"
+                                      ]
+                                    },
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          {
+                                            "Fn::GetAtt": [
+                                              "DocumentBucketAE41E5A9",
+                                              "Arn"
+                                            ]
+                                          },
+                                          "/*"
+                                        ]
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Action": "lambda:InvokeFunction",
+                                  "Effect": "Allow",
+                                  "Resource": {
+                                    "Fn::GetAtt": [
+                                      "SuccessHandlerC6894287",
+                                      "Arn"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "Action": "events:PutEvents",
+                                  "Effect": "Allow",
+                                  "Resource": {
+                                    "Fn::Join": [
+                                      "",
+                                      [
+                                        "arn:",
+                                        {
+                                          "Ref": "AWS::Partition"
+                                        },
+                                        ":events:",
+                                        {
+                                          "Ref": "AWS::Region"
+                                        },
+                                        ":",
+                                        {
+                                          "Ref": "AWS::AccountId"
+                                        },
+                                        ":event-bus/default"
+                                      ]
+                                    ]
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "policyName": "LambdaAsyncFunctionServiceRoleDefaultPolicy94F5C363",
+                            "roles": [
+                              {
+                                "Ref": "LambdaAsyncFunctionServiceRole483E3DFA"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnPolicy",
+                          "version": "2.15.0"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Policy",
+                      "version": "2.15.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.15.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "InfraStack/LambdaAsyncFunction/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "InfraStack/LambdaAsyncFunction/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.15.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "InfraStack/LambdaAsyncFunction/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.15.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.15.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "InfraStack/LambdaAsyncFunction/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": {
+                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                      },
+                      "s3Key": "2f42a20512f626eb228d9d482202c73f468dcf87bf98de8dd5ac3892c9fd7053.zip"
+                    },
+                    "role": {
+                      "Fn::GetAtt": [
+                        "LambdaAsyncFunctionServiceRole483E3DFA",
+                        "Arn"
+                      ]
+                    },
+                    "environment": {
+                      "variables": {
+                        "S3_BUCKET_NAME": {
+                          "Ref": "DocumentBucketAE41E5A9"
+                        }
+                      }
+                    },
+                    "functionName": "lambda-async-dev",
+                    "handler": "async_handler.handler",
+                    "runtime": "python3.8",
+                    "timeout": 900
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.15.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.15.0"
+            }
+          },
           "SuccessHandler": {
             "id": "SuccessHandler",
             "path": "InfraStack/SuccessHandler",
@@ -101,9 +324,6 @@
                               "Statement": [
                                 {
                                   "Action": [
-                                    "s3:GetObject*",
-                                    "s3:GetBucket*",
-                                    "s3:List*",
                                     "s3:DeleteObject*",
                                     "s3:PutObject",
                                     "s3:PutObjectLegalHold",
@@ -200,7 +420,7 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "58e7a7e0d13dc496cc950cfcd15fa2e8d66ae5fbb11e2367e449753c92197460.zip"
+                      "s3Key": "57b1675d510828cff5336b7e1e276dd896e752e25d518b009392f96e19bfae4e.zip"
                     },
                     "role": {
                       "Fn::GetAtt": [
@@ -231,17 +451,17 @@
               "version": "2.15.0"
             }
           },
-          "LambdaAsyncFunction": {
-            "id": "LambdaAsyncFunction",
-            "path": "InfraStack/LambdaAsyncFunction",
+          "PollingHandler": {
+            "id": "PollingHandler",
+            "path": "InfraStack/PollingHandler",
             "children": {
               "ServiceRole": {
                 "id": "ServiceRole",
-                "path": "InfraStack/LambdaAsyncFunction/ServiceRole",
+                "path": "InfraStack/PollingHandler/ServiceRole",
                 "children": {
                   "Resource": {
                     "id": "Resource",
-                    "path": "InfraStack/LambdaAsyncFunction/ServiceRole/Resource",
+                    "path": "InfraStack/PollingHandler/ServiceRole/Resource",
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::IAM::Role",
                       "aws:cdk:cloudformation:props": {
@@ -280,57 +500,53 @@
                   },
                   "DefaultPolicy": {
                     "id": "DefaultPolicy",
-                    "path": "InfraStack/LambdaAsyncFunction/ServiceRole/DefaultPolicy",
+                    "path": "InfraStack/PollingHandler/ServiceRole/DefaultPolicy",
                     "children": {
                       "Resource": {
                         "id": "Resource",
-                        "path": "InfraStack/LambdaAsyncFunction/ServiceRole/DefaultPolicy/Resource",
+                        "path": "InfraStack/PollingHandler/ServiceRole/DefaultPolicy/Resource",
                         "attributes": {
                           "aws:cdk:cloudformation:type": "AWS::IAM::Policy",
                           "aws:cdk:cloudformation:props": {
                             "policyDocument": {
                               "Statement": [
                                 {
-                                  "Action": "events:PutEvents",
+                                  "Action": [
+                                    "s3:GetObject*",
+                                    "s3:GetBucket*",
+                                    "s3:List*"
+                                  ],
                                   "Effect": "Allow",
-                                  "Resource": {
-                                    "Fn::Join": [
-                                      "",
-                                      [
-                                        "arn:",
-                                        {
-                                          "Ref": "AWS::Partition"
-                                        },
-                                        ":events:",
-                                        {
-                                          "Ref": "AWS::Region"
-                                        },
-                                        ":",
-                                        {
-                                          "Ref": "AWS::AccountId"
-                                        },
-                                        ":event-bus/default"
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": [
+                                        "DocumentBucketAE41E5A9",
+                                        "Arn"
                                       ]
-                                    ]
-                                  }
-                                },
-                                {
-                                  "Action": "lambda:InvokeFunction",
-                                  "Effect": "Allow",
-                                  "Resource": {
-                                    "Fn::GetAtt": [
-                                      "SuccessHandlerC6894287",
-                                      "Arn"
-                                    ]
-                                  }
+                                    },
+                                    {
+                                      "Fn::Join": [
+                                        "",
+                                        [
+                                          {
+                                            "Fn::GetAtt": [
+                                              "DocumentBucketAE41E5A9",
+                                              "Arn"
+                                            ]
+                                          },
+                                          "/*"
+                                        ]
+                                      ]
+                                    }
+                                  ]
                                 }
                               ],
                               "Version": "2012-10-17"
                             },
-                            "policyName": "LambdaAsyncFunctionServiceRoleDefaultPolicy94F5C363",
+                            "policyName": "PollingHandlerServiceRoleDefaultPolicy50DD0ADF",
                             "roles": [
                               {
-                                "Ref": "LambdaAsyncFunctionServiceRole483E3DFA"
+                                "Ref": "PollingHandlerServiceRoleD1C2A70F"
                               }
                             ]
                           }
@@ -354,11 +570,11 @@
               },
               "Code": {
                 "id": "Code",
-                "path": "InfraStack/LambdaAsyncFunction/Code",
+                "path": "InfraStack/PollingHandler/Code",
                 "children": {
                   "Stage": {
                     "id": "Stage",
-                    "path": "InfraStack/LambdaAsyncFunction/Code/Stage",
+                    "path": "InfraStack/PollingHandler/Code/Stage",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.AssetStaging",
                       "version": "2.15.0"
@@ -366,7 +582,7 @@
                   },
                   "AssetBucket": {
                     "id": "AssetBucket",
-                    "path": "InfraStack/LambdaAsyncFunction/Code/AssetBucket",
+                    "path": "InfraStack/PollingHandler/Code/AssetBucket",
                     "constructInfo": {
                       "fqn": "aws-cdk-lib.aws_s3.BucketBase",
                       "version": "2.15.0"
@@ -380,7 +596,7 @@
               },
               "Resource": {
                 "id": "Resource",
-                "path": "InfraStack/LambdaAsyncFunction/Resource",
+                "path": "InfraStack/PollingHandler/Resource",
                 "attributes": {
                   "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
                   "aws:cdk:cloudformation:props": {
@@ -388,18 +604,24 @@
                       "s3Bucket": {
                         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                       },
-                      "s3Key": "6191129d6c8a45337b9f007850bf855780466334903a0d0d09251a25770ee9a9.zip"
+                      "s3Key": "5def03fc48ee1d9b05714c48f5f6a895136fe08a801571ed3fa2e016ae81850b.zip"
                     },
                     "role": {
                       "Fn::GetAtt": [
-                        "LambdaAsyncFunctionServiceRole483E3DFA",
+                        "PollingHandlerServiceRoleD1C2A70F",
                         "Arn"
                       ]
                     },
-                    "functionName": "lambda-async-dev",
-                    "handler": "async_handler.handler",
-                    "runtime": "python3.8",
-                    "timeout": 900
+                    "environment": {
+                      "variables": {
+                        "S3_BUCKET_NAME": {
+                          "Ref": "DocumentBucketAE41E5A9"
+                        }
+                      }
+                    },
+                    "functionName": "lambda-async-dev-polling",
+                    "handler": "main.handler",
+                    "runtime": "python3.8"
                   }
                 },
                 "constructInfo": {
@@ -795,7 +1017,7 @@
                           "Ref": "lambdaapi40841C60"
                         },
                         "deploymentId": {
-                          "Ref": "lambdaapiDeployment77E502E604880aefa518e6d1c2819ef5cab3b153"
+                          "Ref": "lambdaapiDeployment77E502E694e3ff846b38ac3b79f2bbffdae46398"
                         },
                         "methodSettings": [
                           {
@@ -1091,7 +1313,7 @@
                             "action": "lambda:InvokeFunction",
                             "functionName": {
                               "Fn::GetAtt": [
-                                "LambdaAsyncFunction053941E6",
+                                "PollingHandler510F9164",
                                 "Arn"
                               ]
                             },
@@ -1140,7 +1362,7 @@
                             "action": "lambda:InvokeFunction",
                             "functionName": {
                               "Fn::GetAtt": [
-                                "LambdaAsyncFunction053941E6",
+                                "PollingHandler510F9164",
                                 "Arn"
                               ]
                             },
@@ -1194,7 +1416,7 @@
                             },
                             "authorizationType": "NONE",
                             "integration": {
-                              "type": "AWS",
+                              "type": "AWS_PROXY",
                               "uri": {
                                 "Fn::Join": [
                                   "",
@@ -1210,7 +1432,7 @@
                                     ":lambda:path/2015-03-31/functions/",
                                     {
                                       "Fn::GetAtt": [
-                                        "LambdaAsyncFunction053941E6",
+                                        "PollingHandler510F9164",
                                         "Arn"
                                       ]
                                     },
@@ -1219,25 +1441,9 @@
                                 ]
                               },
                               "integrationHttpMethod": "POST",
-                              "requestParameters": {
-                                "integration.request.header.X-Amz-Invocation-Type": "method.request.path.InvocationType"
-                              },
                               "requestTemplates": {
                                 "application/json": "{ \"statusCode\": \"200\"}"
-                              },
-                              "passthroughBehavior": "WHEN_NO_TEMPLATES",
-                              "integrationResponses": [
-                                {
-                                  "statusCode": "200",
-                                  "responseParameters": {},
-                                  "responseTemplates": {
-                                    "application/json": "{\n        \"api_stage\": \"$context.stage\",\n        \"api_request_id\": \"$context.requestId\",\n        \"api_resource_path\": \"$context.resourcePath\",\n        \"http_method\": \"$context.httpMethod\",\n        \"source_ip\": \"$context.identity.sourceIp\",\n        \"user-agent\": \"$context.identity.userAgent\",\n        #foreach($param in $input.params().header.keySet())\n        #if($param == \"invocationtype\" or $param == \"InvocationType\" && $util.escapeJavaScript($input.params().header.get($param)) == \"Event\")\n        #set($is_async = \"true\")\n        #end\n        #end\n        #if($is_async == \"true\")\n        \"asynchronous_invocation\":\"true\",\n        \"message\":\"Event received. Check queue/logs for status\"\n        #else\n        \"synchronous_invocation\":\"true\",\n        #end\n        }\n        "
-                                  }
-                                }
-                              ]
-                            },
-                            "requestParameters": {
-                              "method.request.header.InvocationType": true
+                              }
                             }
                           }
                         },
