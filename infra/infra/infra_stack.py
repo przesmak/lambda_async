@@ -74,12 +74,6 @@ class InfraStack(Stack):
         )
 
         resp_template = """{
-        "api_stage": "$context.stage",
-        "api_request_id": "$context.requestId",
-        "api_resource_path": "$context.resourcePath",
-        "http_method": "$context.httpMethod",
-        "source_ip": "$context.identity.sourceIp",
-        "user-agent": "$context.identity.userAgent",
         #foreach($param in $input.params().header.keySet())
         #if($param == "invocationtype" or $param == "InvocationType" && $util.escapeJavaScript($input.params().header.get($param)) == "Event")
         #set($is_async = "true")
@@ -101,7 +95,6 @@ class InfraStack(Stack):
             request_templates={"application/json": '{ "statusCode": "200"}'},
             request_parameters={"integration.request.header.X-Amz-Invocation-Type": "method.request.path.InvocationType"},
             integration_responses=[apigw.IntegrationResponse(status_code="200",
-                    # selection_pattern="2\d{2}",  # Use for mapping Lambda Errors
                     response_parameters={
 
                     }, response_templates={

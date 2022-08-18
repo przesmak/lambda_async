@@ -12,6 +12,8 @@ S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
 
 
 def handler(event, context):
+    """Calling S3 bucket and checking status of the job"""
+
     logger.info(json.dumps(event))
 
     try:

@@ -12,6 +12,8 @@ S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
 
 
 def handler(event, context):
+    """Captures response form main handler on success"""
+
     print("request: {}".format(json.dumps(event)))
 
     try:
